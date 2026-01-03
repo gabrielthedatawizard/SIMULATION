@@ -167,3 +167,4 @@ FRONTEND_URL=http://localhost:3000
 
 **OAuth is now fully integrated!** Users can sign in with Google or GitHub. 🎉
 
+

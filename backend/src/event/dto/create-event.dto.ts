@@ -20,3 +20,4 @@ export class CreateEventDto {
   metadata?: Record<string, any>;
 }
 
+

@@ -109,3 +109,4 @@ FRONTEND_URL=http://localhost:3000
 - For production, use HTTPS URLs
 - Update callback URLs for production environment
 
+

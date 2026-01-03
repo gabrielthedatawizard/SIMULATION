@@ -179,3 +179,4 @@
 ✅ **Trust-driven** - Everything logged, nothing hidden  
 ✅ **Africa-first** - WhatsApp/SMS ready, mobile-first design  
 
+

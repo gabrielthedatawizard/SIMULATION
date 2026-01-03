@@ -79,3 +79,4 @@ The backend will be available at: `http://localhost:3001/api/v1`
 2. Frontend: `http://localhost:3000`
 3. Test registration: `POST /api/v1/auth/register`
 
+
