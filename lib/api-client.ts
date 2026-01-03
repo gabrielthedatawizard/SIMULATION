@@ -42,8 +42,18 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: response.statusText }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      let errorMessage = response.statusText;
+      try {
+        const error = await response.json();
+        errorMessage = error.message || error.error || errorMessage;
+      } catch {
+        // If JSON parsing fails, use status text
+      }
+      
+      const error = new Error(errorMessage);
+      (error as any).status = response.status;
+      (error as any).response = { data: { message: errorMessage } };
+      throw error;
     }
 
     return response.json();
@@ -77,6 +87,13 @@ class ApiClient {
   async post(endpoint: string, data?: any) {
     return this.request(endpoint, {
       method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async patch(endpoint: string, data?: any) {
+    return this.request(endpoint, {
+      method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
@@ -134,6 +151,50 @@ class ApiClient {
 
   async getWorkflow(id: string) {
     return this.request(`/workflows/${id}`);
+  }
+
+  // Admin APIs
+  async getAdminUsers(page = 1, limit = 50): Promise<{ users: any[]; pagination: any }> {
+    return this.request<{ users: any[]; pagination: any }>(`/admin/users?page=${page}&limit=${limit}`);
+  }
+
+  async updateUserStatus(userId: string, action: 'enable' | 'disable') {
+    return this.patch(`/admin/users/${userId}/status?action=${action}`);
+  }
+
+  async getAdminAnalytics(startDate?: string, endDate?: string) {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const query = params.toString();
+    return this.request(`/admin/analytics${query ? `?${query}` : ''}`);
+  }
+
+  async getAdminAIUsage(startDate?: string, endDate?: string) {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const query = params.toString();
+    return this.request(`/admin/ai-usage${query ? `?${query}` : ''}`);
+  }
+
+  async getAdminAutomations() {
+    return this.request('/admin/automations');
+  }
+
+  async getAdminLogs(filters?: {
+    entityType?: string;
+    action?: string;
+    userId?: string;
+    limit?: number;
+  }) {
+    const params = new URLSearchParams();
+    if (filters?.entityType) params.append('entityType', filters.entityType);
+    if (filters?.action) params.append('action', filters.action);
+    if (filters?.userId) params.append('userId', filters.userId);
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    const query = params.toString();
+    return this.request(`/admin/logs${query ? `?${query}` : ''}`);
   }
 }
 
